@@ -1,3 +1,4 @@
 # QuantumCoin
-Coin flipping using quantum computers!!
+Table R6
+Coin flipping and random number generation using quantum computers!!
 😇🦀🦄

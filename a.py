@@ -14,23 +14,35 @@ quantum_simulator = QVMConnection()
 coin_flip = Program(H(0)).measure(0, 0)
 
 
-def heads_or_tails(bool):
+def getbit():
+    """
+    Randomly generates a bit using the coin_flip.
+    :return: either 0 or 1.
+    """
+    return quantum_simulator.run(coin_flip, [0])[0][0]
+
+
+def heads_or_tails(boolean):
     """
     Interprets true as heads, false as tails.
-    :param bool: a boolean
+    :param boolean: a bool
     :return: 'Heads' or 'Tails'
     """
-    return 'Heads' if bool else 'Tails'
+    return 'Heads' if boolean else 'Tails'
 
 
 def get_coin_flip():
+    """
+    Uses quantum mechanics to flip a coin.
+    :return: Nothing is returned.
+    """
     # quantum stuff
     animation = ['-', '\\', '|', '/']
     print('innie minnie miny moe')
     for i in range(20):
         print('\r' + animation[i%4], end="")
         time.sleep(5/20)
-    coin = quantum_simulator.run(coin_flip, [0])[0][0]
+    coin = getbit()
     print('\r'+heads_or_tails(coin))
     # return quantum_simulator.run(coin_flip, [0])[0][0]
 
@@ -51,30 +63,42 @@ def get_next_power_two(pos_int):
     return logarithm_rounded_down
 
 
-def generate_nbit_num(nnint):
+def getrandbits(nnint):
     """
+    Randomly uniformly generates a nonnegative integer with nnint bits.
     :param nnint: a nonnegative integer
-    :return: randomly uniformly generates an x s.t. 0 <= x < 2 ** nnint
+    :return: An x s.t. 0 <= x < 2 ** nnint
     """
     final_ans = 0
     for dummy_i in range(nnint):
-        bit = quantum_simulator.run(coin_flip, [0])[0][0]
+        bit = getbit()
         final_ans *= 2
         final_ans += bit
     return final_ans
 
 
-def generate_random_number(pos_int):
+def randrange(pos_int):
     """
     Generates uniformly a random nonnegative integer 0 <= x < pos_int.  Equivalent to random.randrange(pos_int).
     :param pos_int: any positive integer
     :return: randomly generated integer described above
     """
     next_power_of_two = get_next_power_two(pos_int)
-    ans = generate_nbit_num(next_power_of_two)
+    ans = getrandbits(next_power_of_two)
     while ans > pos_int:
-        ans = generate_nbit_num(next_power_of_two)
+        ans = getrandbits(next_power_of_two)
     return ans
+
+
+def random():
+    """
+    Generates uniformly a 64-bit floating point number in [0, 1).  Equivalent to random.random().  Assumes that
+    on the system running this code, the floating point data type is at least 64 bits.
+    :return: a random float.
+    """
+    # In a 64-bit floating point number, the mantissa is (essentially) 53 bits and the exponent is 7 bits.
+    x = getrandbits(53)
+    return x * (2 ** -53)
 
 
 get_coin_flip()

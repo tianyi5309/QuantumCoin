@@ -2,6 +2,7 @@ import time
 from pyquil.quil import Program
 from pyquil.gates import H
 from pyquil.api import QVMConnection
+from math import *
 # import pygame
 # from pygame import Color
 
@@ -11,6 +12,17 @@ from pyquil.api import QVMConnection
 
 quantum_simulator = QVMConnection()
 coin_flip = Program(H(0)).measure(0, 0)
+
+
+def heads_or_tails(bool):
+    """
+    Interprets true as heads, false as tails.
+    :param bool: a boolean
+    :return: 'Heads' or 'Tails'
+    """
+    return 'Heads' if bool else 'Tails'
+
+
 def get_coin_flip():
     # quantum stuff
     animation = ['-', '\\', '|', '/']
@@ -19,8 +31,51 @@ def get_coin_flip():
         print('\r' + animation[i%4], end="")
         time.sleep(5/20)
     coin = quantum_simulator.run(coin_flip, [0])[0][0]
-    print('\r'+str(coin))
+    print('\r'+heads_or_tails(coin))
     # return quantum_simulator.run(coin_flip, [0])[0][0]
+
+
+def get_next_power_two(pos_int):
+    """
+    :param pos_int: a positive integer
+    :return: smallest n s.t. 2 ^ n >= pos_int
+    """
+    logarithm_rounded_down = int(log(pos_int, 2))
+    power = 2 ** logarithm_rounded_down
+    while power > pos_int:
+        logarithm_rounded_down -= 1
+        power /= 2
+    while 2 ** logarithm_rounded_down < pos_int:
+        logarithm_rounded_down += 1
+        power *= 2
+    return logarithm_rounded_down
+
+
+def generate_nbit_num(nnint):
+    """
+    :param nnint: a nonnegative integer
+    :return: randomly uniformly generates an x s.t. 0 <= x < 2 ** nnint
+    """
+    final_ans = 0
+    for dummy_i in range(nnint):
+        bit = quantum_simulator.run(coin_flip, [0])[0][0]
+        final_ans *= 2
+        final_ans += bit
+    return final_ans
+
+
+def generate_random_number(pos_int):
+    """
+    Generates uniformly a random nonnegative integer 0 <= x < pos_int.  Equivalent to random.randrange(pos_int).
+    :param pos_int: any positive integer
+    :return: randomly generated integer described above
+    """
+    next_power_of_two = get_next_power_two(pos_int)
+    ans = generate_nbit_num(next_power_of_two)
+    while ans > pos_int:
+        ans = generate_nbit_num(next_power_of_two)
+    return ans
+
 
 get_coin_flip()
 
